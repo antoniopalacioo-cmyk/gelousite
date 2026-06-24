@@ -243,7 +243,51 @@ header img {
   font-size: 1.3rem;
   font-weight: 900;
   color: var(--blue);
+  margin-bottom: 6px;
+}
+#img-modal-promo {
+  font-size: 0.82rem;
+  color: var(--green);
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+#img-modal-qty-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.img-modal-qty-btn {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--navy);
+  transition: background 0.15s;
+}
+.img-modal-qty-btn:active { background: var(--ice); }
+#img-modal-qty {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--navy);
+  min-width: 28px;
+  text-align: center;
+}
+.img-modal-promo-shortcut {
+  background: linear-gradient(90deg, var(--green), #27ae60);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  cursor: pointer;
+  white-space: nowrap;
 }
 #img-modal-actions {
   display: flex;
@@ -1335,9 +1379,16 @@ header img {
     <div id="img-modal-body">
       <div id="img-modal-name"></div>
       <div id="img-modal-price"></div>
+      <div id="img-modal-promo" style="display:none;"></div>
+      <div id="img-modal-qty-row">
+        <button class="img-modal-qty-btn" onclick="modalChangeQty(-1)">−</button>
+        <span id="img-modal-qty">1</span>
+        <button class="img-modal-qty-btn" onclick="modalChangeQty(1)">+</button>
+        <button class="img-modal-promo-shortcut" id="img-modal-promo-btn" style="display:none;" onclick="modalSetPromoQty()"></button>
+      </div>
       <div id="img-modal-actions">
         <button class="img-modal-close-btn" onclick="closeImgModal()">Fechar</button>
-        <button class="img-modal-add-btn" id="img-modal-add-btn" onclick="addFromModal()">+ Adicionar</button>
+        <button class="img-modal-add-btn" id="img-modal-add-btn" onclick="addFromModal()">Adicionar</button>
       </div>
     </div>
   </div>
@@ -1738,35 +1789,95 @@ header img {
 
   // ── MODAL IMAGEM PRODUTO ──
   let _modalProductId = null;
+  let _modalQty = 1;
+
   function openImgModal(id) {
     const p = products.find(x => x.id === id);
     if (!p || !p.img) return;
     _modalProductId = id;
+    _modalQty = 1;
+
     document.getElementById('img-modal-img').src = p.img;
     document.getElementById('img-modal-img').alt = p.name;
     document.getElementById('img-modal-name').textContent = p.name;
-    document.getElementById('img-modal-price').textContent = fmt(p.price);
+    document.getElementById('img-modal-qty').textContent = 1;
+
+    // Promo hint
+    const promoDiv = document.getElementById('img-modal-promo');
+    const promoBtn = document.getElementById('img-modal-promo-btn');
+    if (p.basePrice && !p.outOfStock) {
+      promoDiv.textContent = `🏷️ Comprando 3+: ${fmt(p.basePrice)} cada`;
+      promoDiv.style.display = 'block';
+      promoBtn.textContent = `Levar 3 por ${fmt(p.basePrice * 3)}`;
+      promoBtn.style.display = 'inline-flex';
+    } else {
+      promoDiv.style.display = 'none';
+      promoBtn.style.display = 'none';
+    }
+
+    // Preço dinâmico
+    _updateModalPrice(p);
+
     const addBtn = document.getElementById('img-modal-add-btn');
     if (p.outOfStock) {
       addBtn.textContent = 'Sem estoque';
       addBtn.disabled = true;
       addBtn.style.opacity = '0.5';
     } else {
-      addBtn.textContent = '+ Adicionar';
       addBtn.disabled = false;
       addBtn.style.opacity = '1';
     }
+
     document.getElementById('img-modal-overlay').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
+
+  function _updateModalPrice(p) {
+    const prod = p || products.find(x => x.id === _modalProductId);
+    if (!prod) return;
+    const unitPrice = (prod.basePrice && _modalQty >= 3) ? prod.basePrice : prod.price;
+    const total = unitPrice * _modalQty;
+    const priceEl = document.getElementById('img-modal-price');
+    if (_modalQty > 1) {
+      priceEl.textContent = `${_modalQty}x ${fmt(unitPrice)} = ${fmt(total)}`;
+    } else {
+      priceEl.textContent = fmt(unitPrice);
+    }
+    // Atualiza botão
+    const addBtn = document.getElementById('img-modal-add-btn');
+    if (!prod.outOfStock) addBtn.textContent = _modalQty > 1 ? `Adicionar ${_modalQty}` : 'Adicionar';
+  }
+
+  function modalChangeQty(delta) {
+    const p = products.find(x => x.id === _modalProductId);
+    const newQty = _modalQty + delta;
+    if (newQty < 1) return;
+    if (p && p.stock !== undefined && newQty > p.stock) {
+      showAlert(`⚠️ Só temos ${p.stock} ${p.name} em estoque.`);
+      return;
+    }
+    _modalQty = newQty;
+    document.getElementById('img-modal-qty').textContent = _modalQty;
+    _updateModalPrice();
+  }
+
+  function modalSetPromoQty() {
+    _modalQty = 3;
+    document.getElementById('img-modal-qty').textContent = 3;
+    _updateModalPrice();
+  }
+
   function closeImgModal(e) {
     if (e && e.target !== document.getElementById('img-modal-overlay')) return;
     document.getElementById('img-modal-overlay').classList.remove('open');
     document.body.style.overflow = '';
     _modalProductId = null;
+    _modalQty = 1;
   }
   function addFromModal() {
-    if (_modalProductId !== null) changeQty(_modalProductId, 1);
+    if (_modalProductId !== null) {
+      for (let i = 0; i < _modalQty; i++) changeQty(_modalProductId, 1);
+    }
     document.getElementById('img-modal-overlay').classList.remove('open');
     document.body.style.overflow = '';
   }
