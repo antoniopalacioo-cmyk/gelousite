@@ -197,6 +197,144 @@ header img {
 }
 .empty-cat-card strong { color: var(--navy); display: block; font-size: 0.95rem; margin-bottom: 4px; }
 
+/* ── MODAL IMAGEM PRODUTO ── */
+#img-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+#img-modal-overlay.open { display: flex; }
+#img-modal {
+  background: #fff;
+  border-radius: 20px;
+  max-width: 360px;
+  width: 100%;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  animation: modalPop 0.25s ease;
+}
+@keyframes modalPop {
+  from { transform: scale(0.85); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+#img-modal-img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  background: linear-gradient(160deg, var(--ice) 0%, var(--bg) 100%);
+  padding: 16px;
+  box-sizing: border-box;
+}
+#img-modal-body {
+  padding: 16px 20px 20px;
+}
+#img-modal-name {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+#img-modal-price {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--blue);
+  margin-bottom: 16px;
+}
+#img-modal-actions {
+  display: flex;
+  gap: 10px;
+}
+.img-modal-close-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.img-modal-add-btn {
+  flex: 2;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+/* ── FLY TO CART ── */
+.fly-img {
+  position: fixed;
+  width: 60px; height: 60px;
+  object-fit: contain;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              top 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              left 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 0.7s ease,
+              width 0.7s ease,
+              height 0.7s ease;
+}
+
+/* ── BARRA CHECKOUT IFOOD ── */
+#checkout-bar {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 300;
+  background: var(--blue);
+  color: #fff;
+  padding: 14px 20px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.2);
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+#checkout-bar.visible { display: flex; }
+#checkout-bar:active { transform: scale(0.99); }
+.checkout-bar-left {
+  display: flex; align-items: center; gap: 10px;
+}
+.checkout-bar-badge {
+  background: var(--amber);
+  color: var(--navy);
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; font-weight: 900;
+  flex-shrink: 0;
+}
+.checkout-bar-label {
+  font-size: 0.95rem; font-weight: 700;
+}
+.checkout-bar-right {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 800; font-size: 1rem;
+  white-space: nowrap;
+}
+.checkout-bar-cta {
+  background: #fff;
+  color: var(--blue);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
 /* ── CARRINHO FLUTUANTE (mobile) ── */
 .cart-fab {
   display: none;
@@ -236,7 +374,7 @@ header img {
 .container {
   max-width: 960px;
   margin: 0 auto;
-  padding: 20px 14px 100px;
+  padding: 20px 14px 140px;
   display: grid;
   grid-template-columns: 1fr;
   gap: 20px;
@@ -312,7 +450,7 @@ header img {
   background: #F0F8FF;
 }
 .product-img {
-  width: 64px; height: 64px;
+  width: 100px; height: 100px;
   object-fit: contain;
   border-radius: 12px;
   background: linear-gradient(160deg, var(--ice) 0%, var(--bg) 100%);
@@ -322,13 +460,13 @@ header img {
   flex-shrink: 0;
 }
 .product-img-fallback {
-  width: 64px; height: 64px;
+  width: 100px; height: 100px;
   flex-shrink: 0; border-radius: 12px;
   background: linear-gradient(160deg, var(--ice) 0%, var(--bg) 100%);
   border: 1px solid var(--border);
   display: none;
   align-items: center; justify-content: center;
-  font-size: 1.8rem;
+  font-size: 2.4rem;
 }
 .product-info { flex: 1; min-width: 0; }
 .product-name {
@@ -1190,6 +1328,33 @@ header img {
   <div class="fab-count" id="fab-count">0</div>
 </button>
 
+<!-- Modal visualização produto -->
+<div id="img-modal-overlay" onclick="closeImgModal(event)">
+  <div id="img-modal">
+    <img id="img-modal-img" src="" alt="">
+    <div id="img-modal-body">
+      <div id="img-modal-name"></div>
+      <div id="img-modal-price"></div>
+      <div id="img-modal-actions">
+        <button class="img-modal-close-btn" onclick="closeImgModal()">Fechar</button>
+        <button class="img-modal-add-btn" id="img-modal-add-btn" onclick="addFromModal()">+ Adicionar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Barra checkout estilo iFood -->
+<div id="checkout-bar" onclick="openPanel()">
+  <div class="checkout-bar-left">
+    <div class="checkout-bar-badge" id="cb-qty">0</div>
+    <span class="checkout-bar-label">Ver sacola</span>
+  </div>
+  <div class="checkout-bar-right">
+    <span id="cb-total">R$ 0,00</span>
+    <span class="checkout-bar-cta">Ver pedido →</span>
+  </div>
+</div>
+
 <div class="container">
 
   <!-- CATÁLOGO -->
@@ -1488,7 +1653,7 @@ header img {
         </div>` : `
         <div class="product-card${p.img ? '' : ' no-img'}${p.outOfStock ? ' out-of-stock' : ''}" id="card-${p.id}">
           ${p.img
-            ? `<img class="product-img" src="${p.img}" alt="${p.name}" onerror="imgError(this,${p.id})" loading="lazy">`
+            ? `<img class="product-img" src="${p.img}" alt="${p.name}" onerror="imgError(this,${p.id})" loading="lazy" onclick="openImgModal(${p.id})" style="cursor:zoom-in;">`
             : `<div class="product-img-fallback" id="fallback-${p.id}" style="display:flex">🍺</div>`
           }
           <div class="product-info">
@@ -1571,6 +1736,41 @@ header img {
     if (tabs[map[cat]]) tabs[map[cat]].classList.add('active');
   }
 
+  // ── MODAL IMAGEM PRODUTO ──
+  let _modalProductId = null;
+  function openImgModal(id) {
+    const p = products.find(x => x.id === id);
+    if (!p || !p.img) return;
+    _modalProductId = id;
+    document.getElementById('img-modal-img').src = p.img;
+    document.getElementById('img-modal-img').alt = p.name;
+    document.getElementById('img-modal-name').textContent = p.name;
+    document.getElementById('img-modal-price').textContent = fmt(p.price);
+    const addBtn = document.getElementById('img-modal-add-btn');
+    if (p.outOfStock) {
+      addBtn.textContent = 'Sem estoque';
+      addBtn.disabled = true;
+      addBtn.style.opacity = '0.5';
+    } else {
+      addBtn.textContent = '+ Adicionar';
+      addBtn.disabled = false;
+      addBtn.style.opacity = '1';
+    }
+    document.getElementById('img-modal-overlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeImgModal(e) {
+    if (e && e.target !== document.getElementById('img-modal-overlay')) return;
+    document.getElementById('img-modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+    _modalProductId = null;
+  }
+  function addFromModal() {
+    if (_modalProductId !== null) changeQty(_modalProductId, 1);
+    document.getElementById('img-modal-overlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
   function changeQty(id, delta) {
     const prod = products.find(p => p.id === id);
     if (prod && prod.outOfStock) return; // bloqueia produto sem estoque
@@ -1582,9 +1782,42 @@ header img {
     quantities[id] = Math.max(0, novaQtd);
     document.getElementById('qty-' + id).textContent = quantities[id];
     const card = document.getElementById('card-' + id);
-    if (quantities[id] > 0) card.classList.add('in-cart');
-    else card.classList.remove('in-cart');
+    if (quantities[id] > 0) {
+      card.classList.add('in-cart');
+      if (delta > 0) flyToCart(id);
+    } else card.classList.remove('in-cart');
     updateOrder();
+  }
+
+  function flyToCart(id) {
+    const prod = products.find(p => p.id === id);
+    if (!prod || !prod.img) return;
+    const card = document.getElementById('card-' + id);
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const target = document.getElementById('checkout-bar');
+    const targetRect = target && target.classList.contains('visible')
+      ? target.getBoundingClientRect()
+      : document.getElementById('cart-fab').getBoundingClientRect();
+
+    const el = document.createElement('img');
+    el.src = prod.img;
+    el.className = 'fly-img';
+    el.style.top = (rect.top + rect.height / 2 - 30) + 'px';
+    el.style.left = (rect.left + rect.width / 2 - 30) + 'px';
+    el.style.opacity = '1';
+    document.body.appendChild(el);
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.style.top = (targetRect.top + targetRect.height / 2 - 10) + 'px';
+        el.style.left = (targetRect.left + targetRect.width / 2 - 10) + 'px';
+        el.style.width = '20px';
+        el.style.height = '20px';
+        el.style.opacity = '0';
+      });
+    });
+    setTimeout(() => el.remove(), 750);
   }
 
   // ── CASCO (retorno de garrafa) ──
@@ -1792,6 +2025,16 @@ header img {
     const totalQty = items.reduce((a, p) => a + quantities[p.id], 0) + customCart.reduce((a, c) => a + c.qty, 0);
     document.getElementById('fab-count').textContent = totalQty;
     document.getElementById('fab-label').textContent = totalQty > 0 ? `${totalQty} ite${totalQty===1?'m':'ns'} • ${fmt(total)}` : 'Ver carrinho';
+
+    // Barra checkout iFood
+    const bar = document.getElementById('checkout-bar');
+    if (totalQty > 0) {
+      bar.classList.add('visible');
+      document.getElementById('cb-qty').textContent = totalQty;
+      document.getElementById('cb-total').textContent = fmt(total);
+    } else {
+      bar.classList.remove('visible');
+    }
   }
 
   // ── PAINEL MOBILE ──
