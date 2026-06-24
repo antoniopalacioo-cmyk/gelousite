@@ -106,25 +106,29 @@ header img {
 
 /* ── FAIXA DE CONFIANÇA ── */
 .trust-strip {
-  display: flex;
-  gap: 18px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -webkit-overflow-scrolling: touch;
-  padding: 9px 16px;
   background: var(--navy);
+  padding: 9px 16px;
+  display: flex;
+  align-items: center;
   justify-content: center;
+  overflow: hidden;
+  min-height: 36px;
 }
-.trust-strip::-webkit-scrollbar { display: none; }
 .trust-item {
   font-size: 0.74rem;
   font-weight: 700;
   color: #D7E8FF;
   white-space: nowrap;
-  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 5px;
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.trust-item.active {
+  opacity: 1;
+  position: relative;
 }
 
 /* ── BARRA DE BUSCA ── */
@@ -647,6 +651,17 @@ header img {
 .order-item:last-child { border-bottom: none; }
 .order-item-name { color: var(--muted); flex: 1; font-weight: 600; }
 .order-item-sub { font-weight: 800; color: var(--blue); margin-left: 8px; }
+.order-item-remove {
+  background: none;
+  border: none;
+  color: #ccc;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0 4px 0 8px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+.order-item-remove:hover { color: #e74c3c; }
 .order-empty {
   font-size: 0.83rem;
   color: var(--muted);
@@ -1366,8 +1381,8 @@ header img {
   </div>
 </div>
 
-<!-- FAB carrinho mobile -->
-<button class="cart-fab" id="cart-fab" onclick="openPanel()">
+<!-- FAB carrinho mobile (desativado) -->
+<button class="cart-fab" id="cart-fab" onclick="openPanel()" style="display:none!important">
   🛒 <span id="fab-label">Ver carrinho</span>
   <div class="fab-count" id="fab-count">0</div>
 </button>
@@ -1882,6 +1897,16 @@ header img {
     document.body.style.overflow = '';
   }
 
+  function removeFromCart(id) {
+    quantities[id] = 0;
+    const el = document.getElementById('qty-' + id);
+    if (el) el.textContent = 0;
+    const card = document.getElementById('card-' + id);
+    if (card) card.classList.remove('in-cart');
+    if (cascoFlags[id]) { cascoFlags[id] = false; const cb = document.getElementById('casco-' + id); if (cb) cb.checked = false; }
+    updateOrder();
+  }
+
   function changeQty(id, delta) {
     const prod = products.find(p => p.id === id);
     if (prod && prod.outOfStock) return; // bloqueia produto sem estoque
@@ -2088,6 +2113,7 @@ header img {
         return `<div class="order-item">
           <span class="order-item-name">${qty}x ${p.name}${descontoLabel}${cascoLabel}</span>
           <span class="order-item-sub">${fmt(sub)}</span>
+          <button class="order-item-remove" onclick="removeFromCart(${p.id})" title="Remover">✕</button>
         </div>`;
       }).join('');
 
@@ -2498,7 +2524,17 @@ header img {
       // sem internet ou erro - site continua com os dados manuais (outOfStock/stock fixos)
     }
   }
-  carregarEstoque();
+  // ── BANNER ROTATIVO ──
+  (function() {
+    const items = document.querySelectorAll('.trust-item');
+    let current = 0;
+    items[0].classList.add('active');
+    setInterval(() => {
+      items[current].classList.remove('active');
+      current = (current + 1) % items.length;
+      items[current].classList.add('active');
+    }, 2800);
+  })();
 
 </script>
 
