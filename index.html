@@ -1335,6 +1335,7 @@ header img {
 <div class="category-tabs" id="category-tabs">
   <button class="cat-tab active" onclick="filterCategory('all')">🍺 Todos</button>
   <button class="cat-tab" onclick="filterCategory('combos')">🎁 Combos</button>
+  <button class="cat-tab" onclick="filterCategory('copao')">🍹 Copão</button>
   <button class="cat-tab" onclick="filterCategory('longneck')">🍾 Long Necks</button>
   <button class="cat-tab" onclick="filterCategory('latao')">🍺 Latões</button>
   <button class="cat-tab" onclick="filterCategory('cracudinha')">🧊 Cracudinha</button>
@@ -1342,7 +1343,6 @@ header img {
   <button class="cat-tab" onclick="filterCategory('energeticos')">⚡ Energéticos</button>
   <button class="cat-tab" onclick="filterCategory('aguas-sucos')">💧 Água e Sucos</button>
   <button class="cat-tab" onclick="filterCategory('outros')">🥤 Outros</button>
-  <button class="cat-tab" onclick="filterCategory('copao')">🍹 Copão</button>
 </div>
 
 <!-- Botão WhatsApp dúvidas -->
@@ -1675,6 +1675,7 @@ header img {
     const COPAO_ENABLED = true; // ⚠️ troque para false para desativar a aba/categoria Copão
     const categories = [
       { key: 'combos',    label: '🎁 Combos' },
+      ...(COPAO_ENABLED ? [{ key: 'copao', label: '🍹 Copão (monte o seu)' }] : []),
       { key: 'longneck', label: '🍾 Long Necks' },
       { key: 'latao',     label: '🍺 Latões' },
       { key: 'cracudinha', label: '🧊 Cracudinha' },
@@ -1682,7 +1683,6 @@ header img {
       { key: 'energeticos', label: '⚡ Energéticos' },
       { key: 'aguas-sucos', label: '💧 Água e Sucos' },
       { key: 'outros',   label: '🥤 Refrigerantes & Outros' },
-      ...(COPAO_ENABLED ? [{ key: 'copao', label: '🍹 Copão (monte o seu)' }] : []),
     ];
     const list = document.getElementById('products-list');
     const searchActive = currentSearch.trim().length > 0;
@@ -1807,7 +1807,7 @@ header img {
     // Update tab styles
     document.querySelectorAll('.cat-tab').forEach(btn => btn.classList.remove('active'));
     const tabs = document.querySelectorAll('.cat-tab');
-    const map = { all: 0, combos: 1, longneck: 2, latao: 3, cracudinha: 4, destilados: 5, energeticos: 6, 'aguas-sucos': 7, outros: 8, copao: 9 };
+    const map = { all: 0, combos: 1, copao: 2, longneck: 3, latao: 4, cracudinha: 5, destilados: 6, energeticos: 7, 'aguas-sucos': 8, outros: 9 };
     if (tabs[map[cat]]) tabs[map[cat]].classList.add('active');
   }
 
