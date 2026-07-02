@@ -1705,7 +1705,7 @@ header img {
       : categories;
 
     let html = catsToShow.map(cat => {
-      let prods = products.filter(p => p.cat === cat.key);
+      let prods = products.filter(p => p.cat === cat.key && !p.outOfStock);
       if (searchActive) {
         prods = prods.filter(p => normalizeText(p.name).includes(normQuery));
       }
