@@ -1722,12 +1722,12 @@ header img {
   function renderProducts(filterCat) {
     const COPAO_ENABLED = true; // ⚠️ troque para false para desativar a aba/categoria Copão
     const categories = [
+      { key: 'petisco',   label: '🧀 Petisco' },
       { key: 'vinhos',   label: '🍷 Vinhos' },
       { key: 'longneck', label: '🍾 Long Necks' },
       { key: 'latao',     label: '🍺 Latões' },
       ...(COPAO_ENABLED ? [{ key: 'copao', label: '🍹 Copão (monte o seu)' }] : []),
       { key: 'combos',    label: '🎁 Combos' },
-      { key: 'petisco',   label: '🧀 Petisco' },
       { key: 'cracudinha', label: '🧊 Cracudinha' },
       { key: 'destilados', label: '🥃 Destilados' },
       { key: 'energeticos', label: '⚡ Energéticos' },
