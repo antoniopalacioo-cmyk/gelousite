@@ -1523,6 +1523,10 @@ header img {
           <span>🎟️ Desconto</span>
           <span id="desconto-value" class="desconto-row">- R$ 0,00</span>
         </div>
+        <div class="totals-row" id="taxa-vrva-row" style="display:none">
+          <span>🍽️ Taxa VR/VA (10%)</span>
+          <span id="taxa-vrva-value">+ R$ 0,00</span>
+        </div>
         <div class="totals-row">
           <span>🛵 Entrega</span>
           <span id="frete-value-tot">R$ —</span>
@@ -1601,6 +1605,7 @@ header img {
           <button class="pay-btn" onclick="selectPay(this,'PIX')">💠 PIX</button>
           <button class="pay-btn" onclick="selectPay(this,'Dinheiro')">💵 Dinheiro</button>
           <button class="pay-btn" onclick="selectPay(this,'Cartão')">💳 Cartão</button>
+          <button class="pay-btn" onclick="selectPay(this,'VR/VA')">🍽️ VR/VA</button>
         </div>
       </div>
 
@@ -2368,7 +2373,8 @@ header img {
       totalsBlock.style.display = 'block';
     }
 
-    const total = subtotal + currentFrete;
+    const taxaVrva = selectedPay === 'VR/VA' ? (subtotal + currentFrete) * VRVA_TAXA : 0;
+    const total = subtotal + currentFrete + taxaVrva;
 
     document.getElementById('subtotal-value').textContent = fmt(subtotal);
 
@@ -2383,6 +2389,17 @@ header img {
         if (labelSpan) labelSpan.textContent = '🏷️ Leve 3, pague menos';
       } else {
         descontoRow.style.display = 'none';
+      }
+    }
+
+    const taxaVrvaRow = document.getElementById('taxa-vrva-row');
+    if (taxaVrvaRow) {
+      if (taxaVrva > 0) {
+        taxaVrvaRow.style.display = 'flex';
+        const span = document.getElementById('taxa-vrva-value');
+        if (span) span.textContent = '+ ' + fmt(taxaVrva);
+      } else {
+        taxaVrvaRow.style.display = 'none';
       }
     }
 
@@ -2473,6 +2490,7 @@ header img {
 
   // ── PAGAMENTO ──
   let needsTroco = null; // null = ainda não respondeu, true/false depois
+  const VRVA_TAXA = 0.10; // 10% - Lei nº 13.455/2017
   function selectPay(el, method) {
     document.querySelectorAll('.pay-btn').forEach(b => b.classList.remove('selected'));
     el.classList.add('selected');
@@ -2489,6 +2507,12 @@ header img {
       document.getElementById('troco-valor-wrap').style.display = 'none';
       document.getElementById('input-troco-valor').value = '';
     }
+
+    if (method === 'VR/VA') {
+      showWarnPopup('Informamos que, para pagamentos realizados com cartões de alimentação/refeição, é acrescida a taxa de 10%, conforme permitido pela Lei nº 13.455/2017, que autoriza a diferenciação de preços de acordo com o meio de pagamento. Agradecemos a compreensão.');
+    }
+
+    updateOrder();
   }
 
   function setTroco(sim) {
@@ -2589,7 +2613,8 @@ header img {
 
     const lines = [...productLines, ...customLines].join('\n');
 
-    const total = subtotal + currentFrete;
+    const taxaVrva = selectedPay === 'VR/VA' ? (subtotal + currentFrete) * VRVA_TAXA : 0;
+    const total = subtotal + currentFrete + taxaVrva;
     const enderecoFull = `${address}, ${numero}${complement ? ', ' + complement : ''} — ${bairro} (CEP ${cep})`;
 
     let msg = `🍺 *NOVO PEDIDO — GELOU*\n\n`;
@@ -2597,6 +2622,7 @@ header img {
     msg += `📍 *Endereço:* ${enderecoFull}\n\n`;
     msg += `*Itens:*\n${lines}\n\n`;
     msg += `🛵 *Frete (${bairro}):* ${fmt(currentFrete)}\n`;
+    if (taxaVrva > 0) msg += `🍽️ *Taxa VR/VA (10%):* ${fmt(taxaVrva)}\n`;
     msg += `💰 *Total: ${fmt(total)}*\n`;
     msg += `💳 *Pagamento:* ${selectedPay}${trocoMsg}`;
     if (obs) msg += `\n📝 *Obs:* ${obs}`;
