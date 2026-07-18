@@ -1954,7 +1954,7 @@ header img {
     // Update tab styles
     document.querySelectorAll('.cat-tab').forEach(btn => btn.classList.remove('active'));
     const tabs = document.querySelectorAll('.cat-tab');
-    const map = { all: 0, petisco: 1, copao: 2, vinhos: 3, longneck: 4, latao: 5, combos: 6, cracudinha: 7, destilados: 8, energeticos: 9, 'aguas-sucos': 10, outros: 11 };
+    const map = { all: 0, combos: 1, petisco: 2, copao: 3, vinhos: 4, longneck: 5, latao: 6, cracudinha: 7, destilados: 8, energeticos: 9, 'aguas-sucos': 10, outros: 11 };
     if (tabs[map[cat]]) tabs[map[cat]].classList.add('active');
   }
 
