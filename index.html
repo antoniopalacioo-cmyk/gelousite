@@ -154,6 +154,22 @@ header img {
   padding: 3px 10px;
   letter-spacing: 0.3px;
 }
+.badge-open.is-closed {
+  background: #FFEBEE;
+  color: #B71C1C;
+  border: 1.5px solid #EF9A9A;
+}
+.closed-banner {
+  display: none;
+  background: #FFF3E0;
+  color: #E65100;
+  border-bottom: 1.5px solid #FFCC80;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 8px 12px;
+}
+.closed-banner.show { display: block; }
 @media (max-width: 480px) {
   header img { height: 88px; }
   .header-inner { padding: 4px 16px; }
@@ -1369,12 +1385,14 @@ header img {
     <div class="header-right">
       <span class="location-tag"><span style="color:#FF3D00;font-size:1rem;">📍</span> Parque Mambucaba</span>
       <div class="header-status-row">
-        <span class="badge-open">✅ Aberto</span>
+        <span class="badge-open" id="badge-open">✅ Aberto</span>
         <span class="badge-delivery">🏍️ Entrega Rápida</span>
       </div>
     </div>
   </div>
 </header>
+
+<div class="closed-banner" id="closed-banner">🔴 Estamos fechados no momento. Confira nosso horário de funcionamento abaixo. Você ainda pode ver o cardápio!</div>
 
 <!-- Overlay mobile -->
 <div class="order-overlay" id="order-overlay" onclick="closePanel()"></div>
@@ -2807,6 +2825,67 @@ header img {
       items[current].classList.add('active');
     }, 2800);
   })();
+
+  // ── HORÁRIO DE FUNCIONAMENTO AUTOMÁTICO ──
+  // Chave = dia da semana (0=domingo, 1=segunda ... 6=sábado)
+  // Horários que passam da meia-noite (ex: 18:00 às 02:00) são tratados automaticamente.
+  const STORE_HOURS = {
+    0: { open: '15:00', close: '02:00' }, // Domingo
+    1: { open: '18:00', close: '00:00' }, // Segunda
+    2: { open: '18:00', close: '00:00' }, // Terça
+    3: { open: '18:00', close: '00:00' }, // Quarta
+    4: { open: '18:00', close: '00:00' }, // Quinta
+    5: { open: '18:00', close: '02:00' }, // Sexta
+    6: { open: '15:00', close: '02:00' }  // Sábado
+  };
+
+  function horaParaMinutos(hhmm) {
+    const [h, m] = hhmm.split(':').map(Number);
+    return h * 60 + m;
+  }
+
+  function lojaEstaAberta(agora) {
+    const dow = agora.getDay();
+    const minutosAgora = agora.getHours() * 60 + agora.getMinutes();
+
+    const hojeSched = STORE_HOURS[dow];
+    const aberturaHoje = horaParaMinutos(hojeSched.open);
+    let fechamentoHoje = horaParaMinutos(hojeSched.close);
+    const passaDaMeiaNoite = fechamentoHoje <= aberturaHoje;
+    if (passaDaMeiaNoite) fechamentoHoje = 1440; // vira 24:00 nesse dia, resto vai pro dia seguinte
+
+    const abertoPorHojeIniciar = minutosAgora >= aberturaHoje && minutosAgora < fechamentoHoje;
+
+    // Verifica se o expediente de ONTEM ainda está rolando (passou da meia-noite)
+    const diaAnterior = (dow + 6) % 7;
+    const ontemSched = STORE_HOURS[diaAnterior];
+    const aberturaOntem = horaParaMinutos(ontemSched.open);
+    const fechamentoOntem = horaParaMinutos(ontemSched.close);
+    const ontemPassouDaMeiaNoite = fechamentoOntem <= aberturaOntem;
+    const abertoPorOntemContinuar = ontemPassouDaMeiaNoite && minutosAgora < fechamentoOntem;
+
+    return abertoPorHojeIniciar || abertoPorOntemContinuar;
+  }
+
+  function atualizarStatusLoja() {
+    const aberto = lojaEstaAberta(new Date());
+    const badge = document.getElementById('badge-open');
+    const banner = document.getElementById('closed-banner');
+    if (!badge || !banner) return;
+
+    if (aberto) {
+      badge.textContent = '✅ Aberto';
+      badge.classList.remove('is-closed');
+      banner.classList.remove('show');
+    } else {
+      badge.textContent = '🔴 Fechado';
+      badge.classList.add('is-closed');
+      banner.classList.add('show');
+    }
+  }
+
+  atualizarStatusLoja();
+  setInterval(atualizarStatusLoja, 60000); // reavalia a cada 1 minuto
 
 </script>
 
